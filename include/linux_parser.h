@@ -18,6 +18,8 @@ const std::string kVersionFilename{"/version"};
 const std::string kOSPath{"/etc/os-release"};
 const std::string kPasswordPath{"/etc/passwd"};
 
+
+
 // System
 float MemoryUtilization();
 long UpTime();
@@ -26,6 +28,7 @@ int TotalProcesses();
 int RunningProcesses();
 std::string OperatingSystem();
 std::string Kernel();
+std::string SecondToTime(long seconds);
 
 // CPU
 enum CPUStates {
@@ -41,17 +44,24 @@ enum CPUStates {
   kGuestNice_
 };
 std::vector<std::string> CpuUtilization();
+
 long Jiffies();
 long ActiveJiffies();
 long ActiveJiffies(int pid);
 long IdleJiffies();
+long int UpTime();
 
 // Processes
 std::string Command(int pid);
+float CPUUsageRate(int pid);
 std::string Ram(int pid);
 std::string Uid(int pid);
-std::string User(int pid);
+std::string User(std::string uid);
 long int UpTime(int pid);
+
+// Helper:
+std::string GetValueFromMap(std::string key, std::string dir);
+
 };  // namespace LinuxParser
 
 #endif
