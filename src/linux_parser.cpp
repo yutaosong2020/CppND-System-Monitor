@@ -211,7 +211,7 @@ int LinuxParser::RunningProcesses() {
 // TODO: Read and return the command associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::Command(int pid) {
-  string cmdDir = "/proc/" + to_string(pid) + "/cmdLine";
+  string cmdDir = "/proc/" + to_string(pid) + "/cmdline";
   string cmdLine;
   string line;
   std::ifstream stream(cmdDir);
@@ -344,7 +344,7 @@ float LinuxParser::CPUUsageRate(int pid)
   float total_time = processValues[0] + processValues[1];
   float hertz = sysconf(_SC_CLK_TCK);
   total_time += (processValues[2] + processValues[3]);
-  float seconds =  UpTime(pid);
-  float cpu_usage = 100*(total_time/hertz)/seconds;
+  float seconds =  UpTime() - UpTime(pid);
+  float cpu_usage = (total_time/hertz)/seconds;
   return cpu_usage;
 }

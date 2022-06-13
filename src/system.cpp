@@ -29,13 +29,8 @@ vector<Process>& System::Processes() {
     {
         int curPID = pids_[j];
         Process curProcess;
-        string curUser;
-        string curCommand;
-        float curCPUUtil;
-        string curRam;
-        long int curUpTime;
         curProcess.Pid(curPID);
-        string curUID = LinuxParser::Uid(curPID);      
+        processes_.push_back(curProcess);
     }
 
     // sort objects:
