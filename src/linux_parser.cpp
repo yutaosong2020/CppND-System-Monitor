@@ -62,7 +62,7 @@ vector<int> LinuxParser::Pids() {
       string filename(file->d_name);
       if (std::all_of(filename.begin(), filename.end(), isdigit)) {
         int pid = stoi(filename);
-        pids.push_back(pid);
+        pids.emplace_back(pid);
       }
     }
   }
@@ -107,22 +107,20 @@ long LinuxParser::UpTime() {
     std::istringstream linestream(line); // string stream is seperated by " "
     linestream >> upTimeStr >> idleTimeStr; // this is based on the string info order.
   }
-  float uptimeSec = std::stof(upTimeStr);
+  long uptimeSec = std::stol(upTimeStr);
   
   return uptimeSec;
 }
 
 // TODO: Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() {
-  /*
   auto cpuValues = CpuUtilization();
   long totalJiffies = 0;
-  for(int i=2; (size_t)i<cpuValues.size(); i++)
+  for(int i=0; (size_t)i<cpuValues.size(); i++)
   {
     totalJiffies += stoi(cpuValues[i]);
   }
-  */
-  return 1;
+  return totalJiffies;
 }
 
 
@@ -133,16 +131,14 @@ long LinuxParser::ActiveJiffies() {
 
 // TODO: Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() {
-  /*
   auto cpuValues = CpuUtilization();
-  long idleJiffies = stoi(cpuValues[4]);
-  */
-  return 0;
+  long idleJiffies = stoi(cpuValues[3]);
+  return idleJiffies;
 }
 
 // TODO: Read and return CPU utilization
 vector<string> LinuxParser::CpuUtilization() {
-  // stream order: key >> user >> nice >> system >> idle >> iowait >> irq >> softirq >> steal >> guest >> guest_nice
+  // stream order: user >> nice >> system >> idle >> iowait >> irq >> softirq >> steal >> guest >> guest_nice
   vector<string> utilisationList {};
   std::ifstream fileStream(kProcDirectory+kStatFilename);
   string line;
@@ -153,7 +149,10 @@ vector<string> LinuxParser::CpuUtilization() {
     std::string curStream;
     while ((lineStream >> curStream) && streamIdx < 11)
     {
-      utilisationList.push_back(curStream);
+      if(streamIdx>0)
+      {
+        utilisationList.emplace_back(curStream);
+      }    
       streamIdx++;
     }
   }
@@ -329,7 +328,7 @@ float LinuxParser::CPUUsageRate(int pid)
     {
       if(std::find(idxList.begin(), idxList.end(), idx) != idxList.end())
       {
-        processValues.push_back(std::stof(curStream));
+        processValues.emplace_back(std::stof(curStream));
       }
       idx ++;
     }
