@@ -27,15 +27,11 @@ vector<Process>& System::Processes() {
     // initiate all processes object:
     for(int j=0; (std::size_t)j<pids_.size(); j++)
     {
-        int curPID = pids_[j];
-        Process curProcess;
-        curProcess.Pid(curPID);
-        processes_.push_back(curProcess);
+        Process curProcess(pids_[j]);
+        processes_.emplace_back(curProcess);
     }
 
     // sort objects:
-
-
     return processes_;
 }
 
