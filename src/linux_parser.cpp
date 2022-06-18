@@ -9,6 +9,7 @@
 #include "linux_parser.h"
 
 using std::stof;
+using std::stoi;
 using std::string;
 using std::to_string;
 using std::vector;
@@ -81,8 +82,8 @@ float LinuxParser::MemoryUtilization() {
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
       std::replace(line.begin(), line.end(), ':', ' ');
-      std::istringstream linestream(line);
-      linestream >> key >> value;
+      std::istringstream lineStream(line);
+      lineStream >> key >> value;
       if (key == "MemTotal") {
         memTotal = std::stof(value);
       }
@@ -111,59 +112,50 @@ long LinuxParser::UpTime() {
   return uptimeSec;
 }
 
-string LinuxParser::SecondToTime (long seconds)
-{
-  int hours = seconds / 3600;
-  int minutes = (seconds % 3600) / 60;
-  int secs = (seconds % 3600) % 60;
-  
-  return to_string(hours) + ":" + to_string(minutes) + ":" + to_string(secs);
+// TODO: Read and return the number of jiffies for the system
+long LinuxParser::Jiffies() {
+  /*
+  auto cpuValues = CpuUtilization();
+  long totalJiffies = 0;
+  for(int i=2; (size_t)i<cpuValues.size(); i++)
+  {
+    totalJiffies += stoi(cpuValues[i]);
+  }
+  */
+  return 1;
 }
 
-// TODO: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() { return 0; }
-
-// TODO: Read and return the number of active jiffies for a PID
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
 
 // TODO: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() { return 0; }
+long LinuxParser::ActiveJiffies() {
+  return Jiffies() - IdleJiffies();
+}
 
 // TODO: Read and return the number of idle jiffies for the system
-long LinuxParser::IdleJiffies() { return 0; }
+long LinuxParser::IdleJiffies() {
+  /*
+  auto cpuValues = CpuUtilization();
+  long idleJiffies = stoi(cpuValues[4]);
+  */
+  return 0;
+}
 
 // TODO: Read and return CPU utilization
 vector<string> LinuxParser::CpuUtilization() {
+  // stream order: key >> user >> nice >> system >> idle >> iowait >> irq >> softirq >> steal >> guest >> guest_nice
   vector<string> utilisationList {};
+  std::ifstream fileStream(kProcDirectory+kStatFilename);
   string line;
-  string key;
-  string user;
-  string nice;
-  string system;
-  string idle;
-  string iowait;
-  string irq;
-  string softirq;
-  string steal;
-  string guest;
-  string guest_nice;
-  int totalProcesses = 0;
-  std::ifstream filestream(kProcDirectory+kStatFilename);
-  if (filestream.is_open()) {
-    std::getline(filestream, line);
-    std::istringstream linestream(line);
-    linestream >> key >> user >> nice >> system >> idle >> iowait >> irq >> softirq >> steal >> guest >> guest_nice;
-    utilisationList.push_back(user); 
-    utilisationList.push_back(nice); 
-    utilisationList.push_back(system); 
-    utilisationList.push_back(idle); 
-    utilisationList.push_back(iowait); 
-    utilisationList.push_back(irq); 
-    utilisationList.push_back(softirq); 
-    utilisationList.push_back(steal); 
-    utilisationList.push_back(guest); 
-    utilisationList.push_back(guest_nice); 
+  if (fileStream.is_open()) {
+    std::getline(fileStream, line);
+    std::istringstream lineStream(line);
+    int streamIdx = 0;
+    std::string curStream;
+    while ((lineStream >> curStream) && streamIdx < 11)
+    {
+      utilisationList.push_back(curStream);
+      streamIdx++;
+    }
   }
   return utilisationList;
 }
@@ -236,7 +228,7 @@ string LinuxParser::Ram(int pid[[maybe_unused]]) {
       std::replace(line.begin(), line.end(), ':', ' ');
       std::istringstream linestream(line);
       linestream >> curKey >> value;
-      if(curKey == "VmSize")
+      if(curKey == "VmRSS") // "VmSize is the ram size including the virtual ram. Here use the VmRSS physical ram instead."
       {
         int ramUtil = std::stoi(value)/1000;
         return to_string(ramUtil);
@@ -273,8 +265,8 @@ string LinuxParser::User(string uid) {
       }
     }
   }
+  return curUser;
 }
-
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::UpTime(int pid) {
@@ -318,6 +310,7 @@ string LinuxParser::GetValueFromMap(string key, string dir)
       }
     }
   }
+  return value;
 }
 
 float LinuxParser::CPUUsageRate(int pid)

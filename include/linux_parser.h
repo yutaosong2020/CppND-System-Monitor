@@ -28,7 +28,6 @@ int TotalProcesses();
 int RunningProcesses();
 std::string OperatingSystem();
 std::string Kernel();
-std::string SecondToTime(long seconds);
 
 // CPU
 enum CPUStates {

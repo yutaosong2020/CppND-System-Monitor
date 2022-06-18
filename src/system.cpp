@@ -25,7 +25,7 @@ vector<Process>& System::Processes() {
     std::vector<int> pids_ = LinuxParser::Pids();
     
     // initiate all processes object:
-    for(int j=0; j<pids_.size(); j++)
+    for(int j=0; (std::size_t)j<pids_.size(); j++)
     {
         int curPID = pids_[j];
         Process curProcess;
