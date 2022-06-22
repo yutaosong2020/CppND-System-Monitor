@@ -18,7 +18,8 @@ Process::Process()
 
 Process::Process(int pid)
 {
-    pid_ = pid;
+// initialise:
+    Pid(pid);
 }
 
 // TODO: Return this process's ID
@@ -73,4 +74,21 @@ bool Process::operator<(Process const& a) const {
     {
         return false;
     }  
+}
+
+bool Process::IsValid()
+{
+    string cmd = Command();
+    string rm = Ram();
+    string usr = User();
+    if(cmd == "" || rm == "" || usr == "")
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+    
+    
 }

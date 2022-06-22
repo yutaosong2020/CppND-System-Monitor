@@ -28,7 +28,10 @@ vector<Process>& System::Processes() {
     for(int j=0; (std::size_t)j<pids_.size(); j++)
     {
         Process curProcess(pids_[j]);
-        processes_.emplace_back(curProcess);
+        if(curProcess.IsValid())
+        {
+            processes_.emplace_back(curProcess);
+        }
     }
 
     // sort objects:
